@@ -44,19 +44,26 @@ npm run preview
 
 <!-- FILE_TREE_START -->
 ```
-📁 qr-forge-v2/
-├─ 📂 dist/
-│  ├─ 📂 assets/
-│  │  ├─ 🎨 index-DG5_EnWw.css
-│  │  └─ 🟨 index-DpS71PZt.js
-│  └─ 🌐 index.html
-├─ 📂 src/
-│  ├─ 🟨 main.js
-│  └─ 🎨 style.css
-├─ 🌐 index.html
-├─ 📋 package-lock.json
-├─ 📋 package.json
-└─ 🟨 vite.config.js
+📁 QR-Forge-Create-Beautiful-QR-Codes-Instantly/
+├─ .githooks/
+│  └─ pre-commit
+├─ dist/
+│  ├─ assets/
+│  │  ├─ index-DG5_EnWw.css
+│  │  └─ index-DpS71PZt.js
+│  └─ index.html
+├─ scripts/
+│  └─ generate-readme.js
+├─ src/
+│  ├─ main.js
+│  └─ style.css
+├─ .gitignore
+├─ index.html
+├─ package-lock.json
+├─ package.json
+├─ README.md
+└─ vite.config.js
+
 ```
 <!-- FILE_TREE_END -->
 
