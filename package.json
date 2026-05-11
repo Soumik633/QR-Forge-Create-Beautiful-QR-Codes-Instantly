@@ -1,0 +1,19 @@
+{
+  "name": "qr-forge",
+  "version": "2.0.0",
+  "description": "Stylish QR Code Generator — Vite + Tailwind CSS",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "qrcode": "^1.5.3"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.1.4",
+    "tailwindcss": "^4.1.4",
+    "vite": "^6.3.3"
+  }
+}
