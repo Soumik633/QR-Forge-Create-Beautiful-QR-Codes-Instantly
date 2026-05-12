@@ -1,85 +1,101 @@
-# QR-Forge-Create-Beautiful-QR-Codes-Instantly
+# qr-forge v2.0.0
 
-> Stylish QR Code Generator built with **Vite + Tailwind CSS v4**
+> Stylish QR Code Generator — Vite + Tailwind CSS v4
 
-Generate QR codes from text, URLs, or uploaded files — with custom styles,
-colors, error-correction levels, and optional center logos.
-All processing is done in the browser; file uploads use the free
-[tmpfiles.org](https://tmpfiles.org) service as a temporary CDN.
+![Version](https://img.shields.io/badge/version-2.0.0-7c3aed?style=flat-square)
+![Vite](https://img.shields.io/badge/vite-6-646cff?style=flat-square&logo=vite)
+![Tailwind](https://img.shields.io/badge/tailwind-4-06b6d4?style=flat-square&logo=tailwindcss)
+![License](https://img.shields.io/badge/license-MIT-10b981?style=flat-square)
 
 ---
 For Testing Purpose You Can Visit :- https://qrforgebysoumik.netlify.app/
 
 ## ✨ Features
 
-- Square / Rounded / Dot QR module styles
-- Custom foreground & background colors
-- Adjustable size (200 – 800 px) and error-correction level (L / M / Q / H)
-- Center logo overlay (drag-and-drop or browse)
-- Browser-safe file upload → QR link (no server required)
-- Recent QR history (localStorage)
-- One-click PNG download, clipboard copy, and Web Share API
+- **Text / URL QR** — paste any link or plain text
+- **File Upload QR** — upload images, PDFs, videos (up to 200 MB)
+  - Files hosted via [catbox.moe](https://catbox.moe) → [tmpfiles.org](https://tmpfiles.org) → [gofile.io](https://gofile.io) fallback chain
+  - Zero disk storage — nothing saved on your machine
+- **3 module styles** — Square, Rounded, Dots
+- **Center logo** — default logo or your own image (22% size, ECC-H)
+- **Custom colours** — QR foreground + background colour pickers
+- **Adjustable size** — 200 px to 800 px
+- **Error correction** — L / M / Q / H levels
+- **History** — last 12 QRs saved in localStorage (clear all / delete individual)
+- **Save / Copy / Share** — download PNG, copy to clipboard, Web Share API
 
 ---
 
-## 🚀 Getting Started
+## 🚀 Quick Start
 
 ```bash
-# Install dependencies (also sets up the git hook)
 npm install
+npm run dev        # → http://localhost:5173
+```
 
-# Start dev server
-npm run dev
+## 🏗️ Build
 
-# Production build → dist/
-npm run build
-
-# Preview the production build
-npm run preview
+```bash
+npm run build      # compiles to dist/ and regenerates README
+npm run preview    # preview the production build
 ```
 
 ---
 
 ## 📁 File Structure
 
-<!-- FILE_TREE_START -->
 ```
-📁 QR-Forge-Create-Beautiful-QR-Codes-Instantly/
+qr-forge v2.0.0/
 ├─ .githooks/
-│  └─ pre-commit
-├─ dist/
+│  └─ pre-commit          # runs generate-readme before every commit
+├─ dist/                  # production build output (git-ignored)
 │  ├─ assets/
-│  │  ├─ index-DG5_EnWw.css
-│  │  └─ index-DpS71PZt.js
+│  │  ├─ index-*.css
+│  │  └─ index-*.js
 │  └─ index.html
 ├─ scripts/
-│  └─ generate-readme.js
+│  └─ generate-readme.js  # this script
 ├─ src/
-│  ├─ main.js
-│  └─ style.css
+│  ├─ main.js             # all app logic
+│  └─ style.css           # Tailwind v4 + custom CSS
 ├─ .gitignore
-├─ index.html
-├─ package-lock.json
+├─ index.html             # app entry point
 ├─ package.json
-├─ README.md
-└─ vite.config.js
-
+├─ README.md              # auto-generated — do not edit manually
+└─ vite.config.js         # Vite + Tailwind + CORS proxy config
 ```
-<!-- FILE_TREE_END -->
 
 ---
 
-## 🛠️ Tech Stack
+## 🔧 How the CORS proxy works
 
-| Tool | Role |
-|------|------|
-| [Vite 6](https://vitejs.dev) | Build tool & dev server |
-| [Tailwind CSS v4](https://tailwindcss.com) | Utility-first styling |
-| [qrcode](https://www.npmjs.com/package/qrcode) | QR generation (canvas) |
-| [tmpfiles.org](https://tmpfiles.org) | Temporary file hosting |
+Direct `fetch()` calls to file hosting APIs from `localhost` are
+blocked by CORS. Vite's built-in proxy routes requests server-side:
+
+```
+Browser  →  /proxy/catbox/user/api.php    (same-origin → allowed)
+Vite     →  catbox.moe/user/api.php       (server-to-server → no CORS)
+```
+
+Configured in `vite.config.js` under `server.proxy`.
+
+---
+
+## 📦 Dependencies
+
+| Package | Version | Purpose |
+|---------|---------|---------|
+| `qrcode` | ^1.5.3 | QR canvas generation |
+| `vite` | ^6.3.3 | Dev server + bundler |
+| `tailwindcss` | ^4.1.4 | Utility CSS |
+| `@tailwindcss/vite` | ^4.1.4 | Tailwind v4 Vite plugin |
 
 ---
 
 ## 📄 License
 
-MIT © 2026 — free to use and modify.
+MIT © 2026 Soumik Pal QR Forge
+
+---
+
+*README auto-generated on 2026-05-12 by `scripts/generate-readme.js`*

@@ -1,19 +1,11 @@
-#!/usr/bin/env sh
+#!/bin/sh
 # .githooks/pre-commit
-# ────────────────────────────────────────────────────────────────────
-# Runs automatically before every git commit (including VS Code pushes,
-# which always commit first).
+# Auto-regenerates README.md before every commit.
 #
-# What it does:
-#   1. Regenerates README.md with the current file tree
-#   2. Stages README.md so the updated file is included in the commit
-# ────────────────────────────────────────────────────────────────────
-
-echo "⚙️  [pre-commit] Generating README file structure…"
-
+# To activate these hooks run once:
+#   git config core.hooksPath .githooks
+#
+echo "🔄 Running pre-commit: generating README..."
 node scripts/generate-readme.js
-
-# Stage the freshly-updated README so it goes into the commit
 git add README.md
-
-echo "✅  [pre-commit] Done"
+echo "✓ README.md updated and staged"

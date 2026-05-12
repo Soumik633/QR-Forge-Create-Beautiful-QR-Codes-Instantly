@@ -1,192 +1,127 @@
 #!/usr/bin/env node
 /**
- * generate-readme.js
- * ------------------
- * Scans the project directory and updates the "File Structure"
- * section of README.md automatically on every git commit.
- *
- * Run manually:  node scripts/generate-readme.js
- * Auto-run:      via .githooks/pre-commit  (set up by `npm install`)
+ * scripts/generate-readme.js
+ * Auto-generates README.md from package.json + static template.
+ * Run: node scripts/generate-readme.js
+ * Or automatically after build: npm run build
  */
 
-import fs   from 'fs';
-import path from 'path';
+import { readFileSync, writeFileSync } from 'fs'
+import { resolve, dirname } from 'path'
+import { fileURLToPath } from 'url'
 
-// ── Config ────────────────────────────────────────────────────────────────────
+const __dirname = dirname(fileURLToPath(import.meta.url))
+const ROOT      = resolve(__dirname, '..')
 
-/** Folders / files to skip entirely */
-const IGNORE = new Set([
-  'node_modules',
-  '.git',
-  '.githooks',
-  'scripts',        // hide this helper dir from the tree (optional – remove to show it)
-]);
+// Read package.json
+const pkg = JSON.parse(readFileSync(resolve(ROOT, 'package.json'), 'utf8'))
 
-/** Extensions to label with an icon */
-const EXT_ICONS = {
-  '.js':   '🟨',
-  '.mjs':  '🟨',
-  '.cjs':  '🟨',
-  '.ts':   '🟦',
-  '.tsx':  '🟦',
-  '.jsx':  '🟨',
-  '.css':  '🎨',
-  '.html': '🌐',
-  '.json': '📋',
-  '.md':   '📝',
-  '.svg':  '🖼️',
-  '.png':  '🖼️',
-  '.jpg':  '🖼️',
-  '.ico':  '🖼️',
-  '.sh':   '⚙️',
-  '.lock': '🔒',
-};
+// Build date
+const now    = new Date()
+const built  = now.toISOString().split('T')[0]
+const year   = now.getFullYear()
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+const readme = `# ${pkg.name} v${pkg.version}
 
-function icon(entry) {
-  if (entry.isDirectory()) return '📂';
-  const ext = path.extname(entry.name).toLowerCase();
-  return EXT_ICONS[ext] ?? '📄';
-}
+> ${pkg.description}
 
-/**
- * Recursively build tree lines.
- * @param {string} dir      – absolute path of directory to scan
- * @param {string} prefix   – indentation/connector prefix for children
- * @returns {string[]}
- */
-function buildTree(dir, prefix = '') {
-  const entries = fs
-    .readdirSync(dir, { withFileTypes: true })
-    .filter(e => !IGNORE.has(e.name))
-    .sort((a, b) => {
-      // directories first, then alphabetical
-      if (a.isDirectory() !== b.isDirectory())
-        return a.isDirectory() ? -1 : 1;
-      return a.name.localeCompare(b.name);
-    });
-
-  const lines = [];
-
-  entries.forEach((entry, i) => {
-    const isLast      = i === entries.length - 1;
-    const connector   = isLast ? '└─' : '├─';
-    const childPrefix = prefix + (isLast ? '   ' : '│  ');
-    const ico         = icon(entry);
-
-    if (entry.isDirectory()) {
-      lines.push(`${prefix}${connector} ${ico} ${entry.name}/`);
-      lines.push(...buildTree(path.join(dir, entry.name), childPrefix));
-    } else {
-      lines.push(`${prefix}${connector} ${ico} ${entry.name}`);
-    }
-  });
-
-  return lines;
-}
-
-// ── Main ──────────────────────────────────────────────────────────────────────
-
-const ROOT        = path.resolve('.');
-const projectName = path.basename(ROOT);
-const readmePath  = path.join(ROOT, 'README.md');
-
-// Build tree string
-const treeLines = [`📁 ${projectName}/`, ...buildTree(ROOT)];
-const treeBlock = '```\n' + treeLines.join('\n') + '\n```';
-
-// Section markers (HTML comments — invisible on GitHub)
-const START = '<!-- FILE_TREE_START -->';
-const END   = '<!-- FILE_TREE_END -->';
-
-// ── Read or create README ─────────────────────────────────────────────────────
-
-let content = '';
-
-if (fs.existsSync(readmePath)) {
-  content = fs.readFileSync(readmePath, 'utf8');
-} else {
-  // First-time template
-  content = `# ${projectName}
-
-> Stylish QR Code Generator built with **Vite + Tailwind CSS v4**
-
-Generate QR codes from text, URLs, or uploaded files — with custom styles,
-colors, error-correction levels, and optional center logos.
-All processing is done in the browser; file uploads use the free
-[tmpfiles.org](https://tmpfiles.org) service as a temporary CDN.
+![Version](https://img.shields.io/badge/version-${pkg.version}-7c3aed?style=flat-square)
+![Vite](https://img.shields.io/badge/vite-6-646cff?style=flat-square&logo=vite)
+![Tailwind](https://img.shields.io/badge/tailwind-4-06b6d4?style=flat-square&logo=tailwindcss)
+![License](https://img.shields.io/badge/license-MIT-10b981?style=flat-square)
 
 ---
 
 ## ✨ Features
 
-- Square / Rounded / Dot QR module styles
-- Custom foreground & background colors
-- Adjustable size (200 – 800 px) and error-correction level (L / M / Q / H)
-- Center logo overlay (drag-and-drop or browse)
-- Browser-safe file upload → QR link (no server required)
-- Recent QR history (localStorage)
-- One-click PNG download, clipboard copy, and Web Share API
+- **Text / URL QR** — paste any link or plain text
+- **File Upload QR** — upload images, PDFs, videos (up to 200 MB)
+  - Files hosted via [catbox.moe](https://catbox.moe) → [tmpfiles.org](https://tmpfiles.org) → [gofile.io](https://gofile.io) fallback chain
+  - Zero disk storage — nothing saved on your machine
+- **3 module styles** — Square, Rounded, Dots
+- **Center logo** — default logo or your own image (22% size, ECC-H)
+- **Custom colours** — QR foreground + background colour pickers
+- **Adjustable size** — 200 px to 800 px
+- **Error correction** — L / M / Q / H levels
+- **History** — last 12 QRs saved in localStorage (clear all / delete individual)
+- **Save / Copy / Share** — download PNG, copy to clipboard, Web Share API
 
 ---
 
-## 🚀 Getting Started
+## 🚀 Quick Start
 
 \`\`\`bash
-# Install dependencies (also sets up the git hook)
 npm install
+npm run dev        # → http://localhost:5173
+\`\`\`
 
-# Start dev server
-npm run dev
+## 🏗️ Build
 
-# Production build → dist/
-npm run build
-
-# Preview the production build
-npm run preview
+\`\`\`bash
+npm run build      # compiles to dist/ and regenerates README
+npm run preview    # preview the production build
 \`\`\`
 
 ---
 
 ## 📁 File Structure
 
-${START}
-${END}
+\`\`\`
+qr-forge/
+├─ .githooks/
+│  └─ pre-commit          # runs generate-readme before every commit
+├─ dist/                  # production build output (git-ignored)
+│  ├─ assets/
+│  │  ├─ index-*.css
+│  │  └─ index-*.js
+│  └─ index.html
+├─ scripts/
+│  └─ generate-readme.js  # this script
+├─ src/
+│  ├─ main.js             # all app logic
+│  └─ style.css           # Tailwind v4 + custom CSS
+├─ .gitignore
+├─ index.html             # app entry point
+├─ package.json
+├─ README.md              # auto-generated — do not edit manually
+└─ vite.config.js         # Vite + Tailwind + CORS proxy config
+\`\`\`
 
 ---
 
-## 🛠️ Tech Stack
+## 🔧 How the CORS proxy works
 
-| Tool | Role |
-|------|------|
-| [Vite 6](https://vitejs.dev) | Build tool & dev server |
-| [Tailwind CSS v4](https://tailwindcss.com) | Utility-first styling |
-| [qrcode](https://www.npmjs.com/package/qrcode) | QR generation (canvas) |
-| [tmpfiles.org](https://tmpfiles.org) | Temporary file hosting |
+Direct \`fetch()\` calls to file hosting APIs from \`localhost\` are
+blocked by CORS. Vite's built-in proxy routes requests server-side:
+
+\`\`\`
+Browser  →  /proxy/catbox/user/api.php    (same-origin → allowed)
+Vite     →  catbox.moe/user/api.php       (server-to-server → no CORS)
+\`\`\`
+
+Configured in \`vite.config.js\` under \`server.proxy\`.
+
+---
+
+## 📦 Dependencies
+
+| Package | Version | Purpose |
+|---------|---------|---------|
+| \`qrcode\` | ${pkg.dependencies.qrcode} | QR canvas generation |
+| \`vite\` | ${pkg.devDependencies.vite} | Dev server + bundler |
+| \`tailwindcss\` | ${pkg.devDependencies.tailwindcss} | Utility CSS |
+| \`@tailwindcss/vite\` | ${pkg.devDependencies['@tailwindcss/vite']} | Tailwind v4 Vite plugin |
 
 ---
 
 ## 📄 License
 
-MIT © ${new Date().getFullYear()} — free to use and modify.
-`;
-}
+MIT © ${year} QR Forge
 
-// ── Inject / replace tree section ─────────────────────────────────────────────
+---
 
-const newBlock = `${START}\n${treeBlock}\n${END}`;
+*README auto-generated on ${built} by \`scripts/generate-readme.js\`*
+`
 
-if (content.includes(START) && content.includes(END)) {
-  // Replace existing block
-  content = content.replace(
-    new RegExp(`${START}[\\s\\S]*?${END}`),
-    newBlock
-  );
-} else {
-  // Append a new section at the end
-  content = content.trimEnd() + `\n\n## 📁 File Structure\n\n${newBlock}\n`;
-}
-
-fs.writeFileSync(readmePath, content, 'utf8');
-console.log('✅  README.md › File Structure updated');
+writeFileSync(resolve(ROOT, 'README.md'), readme, 'utf8')
+console.log(`✓ README.md generated (${readme.length} chars)`)
